@@ -92,14 +92,39 @@ int lexer(char *str, Token token_list[]) {
 }
 
 int fix_charges(Node *node) {
-    //TODO
+    if(node == NULL) return 1;
+    if(node->type == N_ELEMENT) {
+        Element* elem = node->data.elem;
+        if(!node->charge_done) {
+            if(elem->ox_state_count == 1) {
+                node->charge = elem->ox_state[0];
+                node->charge_done = 1;
+            }
+        } else { // Check if correct
+            int ox = node->charge, j;
+            for(j = 0; j < elem->ox_state_count; j++){
+                if(ox == elem->ox_state[j]) break;
+            }
+            if(j == elem->ox_state_count) return -1;
+        }
+        return 1;
+    }
+    // Etc, all nodes with child
+    int i;
+    for(i = 0; i <node->child_count; i++) {
+        if(fix_charges(node->data.child[i]) == -1) return -1;
+    }
     return 1;
 }
 
 int check_correctness(Node *root) {
-    // First, check fix charges (In case of multiple ox_states)
-    fix_charges(root);
-    // Then, calculate final charges
+    // First, check fix charges (In case of just one ox_state)
+    if(fix_charges(root) == -1) {
+        fprintf(stderr, "Incorrect charge in formula\n");
+        return -1;
+    }
+    // Then, calculate final charges (TODO)
+
     return 0;
 
 }
@@ -120,12 +145,11 @@ int main(void) {
             fprintf(stderr, "Invalid formula\n");
             return 1;
         }
-        print_tree(root, 0);
         if(check_correctness(root) == -1) {
             fprintf(stderr, "Invalid formula\n");
             return 1;
         }
-        
+        print_tree(root, 0);
     } else {
         fprintf(stderr, "Error reading expression\n");
         return 1;
