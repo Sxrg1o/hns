@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #include "table.h"
 #include "parse.h"
@@ -11,15 +12,16 @@ const Element elements[TOTAL_ELEMENTS] = {
     #undef X
 };
 
-int get_number(char **ptr) {
-    int number = 0;
+int get_number(char **ptr, int *output) {
     char c;
     while (**ptr >= '0' && **ptr <= '9') {
         c = **ptr;
-        number = number * 10 + (c-'0');
+        if((*output > INT_MAX/10) || (*output == INT_MAX/10 && (c-'0') > INT_MAX%10)) return -1;
+        *output = *output * 10 + (c-'0');
         (*ptr)++;    // At the end, this points right after number ends
     }
-    return number;
+    if(*output == 0) return -1;
+    return 0;
 }
 
 const Element* get_element(char **ptr) {
@@ -49,9 +51,12 @@ int lexer(char *str, Token token_list[]) {
             fprintf(stderr, "Error: Too much tokens\n");
             return -1;
         }
-        int number; const Element *elem;
+        int number = 0; const Element *elem;
         if (*ptr >= '0' && *ptr <= '9') {
-            number = get_number(&ptr);
+            if(get_number(&ptr, &number) == -1) {
+                fprintf(stderr, "Integer overflow or number 0\n");
+                return 1;
+            }
             token_list[token_count++] = (Token) { .type = T_NUMBER, .value.number = number};
         } else if (*ptr >= 'A' && *ptr <= 'Z') {
             elem = get_element(&ptr);
@@ -111,6 +116,10 @@ int main(void) {
         buffer[strcspn(buffer, "\n")] = '\0';
         if(lexer(buffer, token_list) == -1) return 1;
         root = parse_formula(token_list, &index);
+        if(root == NULL) {
+            fprintf(stderr, "Invalid formula\n");
+            return 1;
+        }
         print_tree(root, 0);
         if(check_correctness(root) == -1) {
             fprintf(stderr, "Invalid formula\n");

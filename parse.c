@@ -117,6 +117,14 @@ Node *parse_group(Token token_list[], int* index) {
         return NULL;
     }
     compound->type = N_GROUP;
+    if(compound->child_count == 1) {
+        Node *child = compound->data.child[0];
+        if(child->charge_done == 0 && child->mult == 1) {
+            free(compound->data.child);
+            free(compound);
+            return child;
+        }
+    }
     return compound;
 }
 

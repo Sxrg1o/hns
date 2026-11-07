@@ -34,7 +34,7 @@ typedef struct Node {
         Element *elem;
         struct Node **child;
     } data;
-    char type; // Group or Element 0 1
+    NodeType type;
     int charge;
     int mult;
     int child_count;
