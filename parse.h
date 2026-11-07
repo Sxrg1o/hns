@@ -42,6 +42,7 @@ typedef struct Node {
 } Node;
 
 void print_tree(Node*, int);
+void free_tree(Node*);
 Node* parse_expression(Token[], int*);
 Node* parse_formula(Token[], int*);
 Node *parse_compound(Token[], int*);

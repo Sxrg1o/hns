@@ -45,17 +45,19 @@ void free_tree(Node *node) {
     free(node);
 }
 
-void node_add_child(Node *parent, Node *child) {
-    if(parent == NULL || child == NULL) return;
+int node_add_child(Node *parent, Node *child) {
+    if(parent == NULL || child == NULL) return -1;
 
     Node **tmp = (Node **)realloc(parent->data.child, (parent->child_count+1) * sizeof(Node *));
     if(tmp == NULL) {
         fprintf(stderr, "Error: realloc failed in node_add_child\n");
-        return;
+        free_tree(child);
+        return -1;
     }
 
     parent->data.child = tmp;
     parent->data.child[parent->child_count++] = child;
+    return 1;
 }
 
 Node* create_group_node(NodeType type) {
@@ -168,14 +170,20 @@ Node *parse_compound(Token token_list[], int* index) {
         free_tree(parent);
         return NULL;
     }
-    node_add_child(parent, first_unit);
+    if(node_add_child(parent, first_unit) == -1) {
+        free_tree(parent);
+        return NULL;
+    }
     while(token_list[*index].type == T_ELEMENT || token_list[*index].type == T_OPAREN) {
         Node *unit = parse_unit(token_list, index);
         if(unit == NULL) {
             free_tree(parent);
             return NULL;
         }
-        node_add_child(parent, unit);
+        if(node_add_child(parent, unit) == -1) {
+            free_tree(parent);
+            return NULL;
+        }
     }
     return parent;
 }
@@ -218,13 +226,19 @@ Node* parse_expression(Token token_list[], int* index) {
             free_tree(compound);
             return NULL;
         }
-        node_add_child(parent, compound);
+        if(node_add_child(parent, compound) == -1) {
+            free_tree(parent);
+            return NULL;
+        }
         Node* first_child = parse_adduct(token_list, index);
         if(first_child == NULL) {
             free_tree(parent);
             return NULL;
         }
-        node_add_child(parent, first_child);
+        if(node_add_child(parent, first_child) == -1) {
+            free_tree(parent);
+            return NULL;
+        }
 
         while(token_list[*index].type == T_MULTIP) {
             Node* child = parse_adduct(token_list, index);
@@ -232,7 +246,10 @@ Node* parse_expression(Token token_list[], int* index) {
                 free_tree(parent);
                 return NULL;
             }
-            node_add_child(parent, child);
+            if(node_add_child(parent, child) == -1) {
+                free_tree(parent);
+                return NULL;
+            }
         }
         return parent;
     }

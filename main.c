@@ -135,7 +135,7 @@ int main(void) {
     Token token_list[MAX_TOKENS];
     int index = 0;
 
-    printf("Ingrese formula: \n");
+    printf("Formula: ");
 
     if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
         buffer[strcspn(buffer, "\n")] = '\0';
@@ -147,6 +147,7 @@ int main(void) {
         }
         if(check_correctness(root) == -1) {
             fprintf(stderr, "Invalid formula\n");
+            free_tree(root);
             return 1;
         }
         print_tree(root, 0);
@@ -154,6 +155,8 @@ int main(void) {
         fprintf(stderr, "Error reading expression\n");
         return 1;
     }
+
+    free_tree(root);
 
     return 0;
 }

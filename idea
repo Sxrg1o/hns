@@ -45,3 +45,4 @@ S:
 
 
 gcc -std=c99 main.c table.c parse.c -o out
+mañana testear con valgrind y terminar con correctness de formula
