@@ -7,7 +7,7 @@ regla del ocTETO
 
 para los estados de oxidacion (cargas), verificar cuales 
 tienen solo uno para deducir los otros. en caso todos 
-tengan lista, el de mas a la derecha es negativo siempre (importante!!!!)
+tengan lista, el mas electronegativo siempre es negativo (importante!!!!)
 y si tiene en lista varios negativos, toma el menor
 
 despues de cargas fijas, deducir el resto
@@ -46,3 +46,5 @@ S:
 
 gcc -std=c99 main.c table.c parse.c -o out
 mañana testear con valgrind y terminar con correctness de formula
+haciendo esto me he dado cuenta que definitvamente no me gusta la quimica
+o tal vez no me gusta programar
