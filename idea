@@ -45,6 +45,6 @@ S:
 
 
 gcc -std=c99 main.c table.c parse.c -o out
-mañana testear con valgrind y terminar con correctness de formula
+mañana testear con valgrind
 haciendo esto me he dado cuenta que definitvamente no me gusta la quimica
 o tal vez no me gusta programar

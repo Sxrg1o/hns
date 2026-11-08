@@ -35,7 +35,7 @@ int fix_charges(Node *node) {
 Node* resolve_electronegativity(Node *node) {
     if(node == NULL) return NULL;
     if(node->type == N_ELEMENT) return node;
-    int max = -999;
+    float max = -999.0f;
     Node *chosen = NULL;
     for(int i = 0; i < node->child_count; i++) {
         Node *child = resolve_electronegativity(node->data.child[i]);
