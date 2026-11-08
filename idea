@@ -20,10 +20,10 @@ por Compuesto desempate por orden alfabetico
 por Grupo orden por electronegatividad (izquierda<=derecha)
 
 
-formulas con todo
+formulas con todo (IUPAC)
 
-K4(UO2(SO4)2)3*2(NH4)2Fe(CN)6*12H2O
-Zn2Fe^2+(PO4)2*4H2O 
+K4(UO2(SO4)2)3*2(NH4)2Fe(CN)6*12H2O esta no funciona tengo que arreglarla
+Fe^2+Zn2(PO4)2*4H2O 
 
 Gramática
 T = ELEM, NUM, (, ), *, END (atomico)
