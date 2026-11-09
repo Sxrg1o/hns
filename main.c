@@ -45,7 +45,7 @@ const Element* get_element(char **ptr) {
 
 int lexer(char *str, Token token_list[]) {
     char *ptr = str;
-    int token_count = 0;
+    int token_count = 0, was_charge = 0;
     
     while (*ptr != '\0') {
         if (token_count >= MAX_TOKENS - 1) {
@@ -79,9 +79,29 @@ int lexer(char *str, Token token_list[]) {
             ptr++;
         } else if (*ptr == '^') {
             token_list[token_count++] = (Token) { .type = T_CHARGE };
+            was_charge = 1;
             ptr++;
-        } else if (*ptr == '-' || *ptr == '+') {
-            token_list[token_count++] = (Token) { .type = T_SIGN, .value.sign = *ptr };
+        } else if (*ptr == '-')  {
+            if (was_charge) {
+                token_list[token_count++] = (Token) { .type = T_SIGN, .value.sign = *ptr };
+                was_charge = 0;
+                ptr++;
+            } else {
+                if (*(ptr + 1) == '>') {
+                    token_list[token_count++] = (Token) { .type = T_EQUALS };
+                    ptr += 2;
+                } else {
+                    fprintf(stderr, "Error: Undefined syntax '%c'\n", *ptr);
+                    return -1;
+                }
+            }
+        } else if (*ptr == '+') {
+            if (!was_charge) {
+                token_list[token_count++] = (Token) { .type = T_PLUS };
+            } else {
+                token_list[token_count++] = (Token) { .type = T_SIGN, .value.sign = *ptr };
+                was_charge = 0;
+            }
             ptr++;
         } else {
             fprintf(stderr, "Error: Undefined syntax '%c'\n", *ptr);
@@ -103,7 +123,7 @@ int main(void) {
     if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
         buffer[strcspn(buffer, "\n")] = '\0';
         if(lexer(buffer, token_list) == -1) return 1;
-        root = parse_formula(token_list, &index);
+        root = parse_equation(token_list, &index);
         if(root == NULL) {
             fprintf(stderr, "Invalid formula\n");
             return 1;

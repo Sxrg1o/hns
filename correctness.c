@@ -233,14 +233,20 @@ int calculate_charges(Node *node) { // Returns 0 if did nothing, 1 if done, -1 i
 
 int check_correctness(Node *root) {
     // First, check fix charges (In case of just one ox_state)
-    if(fix_charges(root) == -1) {
-        fprintf(stderr, "Incorrect charge in formula\n");
-        return -1;
-    }
-    // Then, calculate final charges
-    if(calculate_charges(root) == -1) {
-        fprintf(stderr, "Can't calculate charges\n");
-        return -1;
+    for(int i = 0; i < root->child_count; i++) {
+        Node *formula = root->data.child[i];
+        for(int j = 0; j < formula->child_count; j++) {
+            Node *expression = formula->data.child[j];
+            if(fix_charges(expression) == -1) {
+                fprintf(stderr, "Incorrect charge in formula\n");
+                return -1;
+            }
+            // Then, calculate final charges
+            if(calculate_charges(expression) == -1) {
+                fprintf(stderr, "Can't calculate charges\n");
+                return -1;
+            }
+        }
     }
     return 1;
 }

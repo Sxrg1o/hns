@@ -15,6 +15,8 @@ void print_node(Node *node, int level) {
         printf("%sElem: %s\n", space, symbol_to_string(node->data.elem->symbol));
     } else {
         printf("%s", space);
+        if(node->type == N_EQUATION) printf("Equa Node\n");
+        if(node->type == N_FORMULA) printf("Form Node\n");
         if(node->type == N_GROUP) printf("Group Node\n");
         if(node->type == N_COMPOUND) printf("Comp Node\n");
         if(node->type == N_ADDUCT) printf("Aduc Node\n");
@@ -257,9 +259,55 @@ Node* parse_expression(Token token_list[], int* index) {
 }
 
 Node* parse_formula(Token token_list[], int* index) {
+    Node *formula = create_group_node(N_FORMULA);
     Node *expression = parse_expression(token_list, index);
-    if(expression == NULL) return NULL;
-    if(token_list[*index].type == T_END) return expression;
-    free_tree(expression);
+    if(expression == NULL) {
+        free_tree(formula);
+        return NULL;
+    }
+    if(node_add_child(formula, expression) == -1) {
+        free(formula);
+        free_tree(expression);
+        return NULL;
+    }
+    while(token_list[*index].type == T_PLUS) {
+        (*index)++;
+        Node *child = parse_expression(token_list, index);
+        if(child == NULL) {
+            free_tree(formula);
+            return NULL;
+        }
+        if(node_add_child(formula, child) == -1) {
+            free_tree(formula);
+            return NULL;
+        }
+    }
+    return formula;
+}
+
+Node *parse_equation(Token token_list[], int* index) {
+    Node *equation = create_group_node(N_EQUATION);
+    Node *formulal = parse_formula(token_list, index);
+    if(formulal == NULL) return NULL;
+    if(node_add_child(equation, formulal) == -1) {
+        free_tree(equation);
+        return NULL;
+    }
+    if(token_list[*index].type != T_EQUALS) {
+        free_tree(equation);
+        return NULL;
+    }
+    (*index)++;
+    Node *formular = parse_formula(token_list, index);
+    if(formular == NULL) {
+        free_tree(equation);
+        return NULL;
+    }
+    if(node_add_child(equation, formular) == -1) {
+        free_tree(equation);
+        return NULL;
+    }
+    if(token_list[*index].type == T_END) return equation;
+    free_tree(equation);
     return NULL;
 }

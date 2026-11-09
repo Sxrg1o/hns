@@ -37,14 +37,15 @@ P: Transformar N a Ts
     Compuesto   = Unidad { Unidad }
     Aducto      = * [NUM] Compuesto
     Expresion   = [NUM] Compuesto ([Carga] | Aducto { Aducto })
-    Formula     = Expresion END
+    Formula     = Expresion {+ Expresion}
+    Ecuacion    = Formula -> Formula END
 S:
     Formula
 
+Balanceo
+Gauss-Jordan: hallar kernel (reduccion por filas)
+Multiplicar por mcm del denominador
+gg
 
-
-
-gcc -std=c99 main.c table.c parse.c -o out
-mañana testear con valgrind
 haciendo esto me he dado cuenta que definitvamente no me gusta la quimica
 o tal vez no me gusta programar

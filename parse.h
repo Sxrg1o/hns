@@ -9,7 +9,8 @@
 typedef enum {
     T_ELEMENT, T_NUMBER, T_OPAREN,
     T_CPAREN, T_MULTIP, T_END,
-    T_CHARGE, T_SIGN, T_UNDEF
+    T_CHARGE, T_SIGN, T_PLUS,
+    T_EQUALS, T_UNDEF
 } TokenType;
 
 typedef struct {
@@ -26,7 +27,9 @@ typedef enum {
     N_GROUP,
     N_ELEMENT,
     N_COMPOUND,
-    N_ADDUCT
+    N_ADDUCT,
+    N_FORMULA,
+    N_EQUATION
 } NodeType;
 
 typedef struct Node {
@@ -44,7 +47,7 @@ typedef struct Node {
 void print_tree(Node*, int);
 void free_tree(Node*);
 Node* parse_expression(Token[], int*);
-Node* parse_formula(Token[], int*);
+Node* parse_equation(Token[], int*);
 Node *parse_compound(Token[], int*);
 
 #endif
