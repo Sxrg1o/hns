@@ -33,7 +33,7 @@ KMnO4+HCl->KCl+MnCl2+H2O+Cl2            2 16 2 2 8 5
 ahora soporta formulas semidesarrolladas 
 
 Gramática
-T = ELEM, NUM, (, ), *, END (atomico)
+T = ELEM, NUM, (, ), *, ->, +, - END (atomico)
 N = Formula, Nucleo, Unidad, Carga, Signo, Grupo, Compuesto, Expresion (composiciones)
 P: Transformar N a Ts
     Nucleo      = ELEM | Grupo
