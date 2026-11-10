@@ -22,8 +22,15 @@ por Grupo orden por electronegatividad (izquierda<=derecha)
 
 formulas con todo (IUPAC)
 
-K4(UO2(SO4)2)3*2(NH4)2Fe(CN)6*12H2O esta no funciona tengo que arreglarla
 Fe^2+Zn2(PO4)2*4H2O 
+
+H2+O2->H2O                              2 1 2
+Al2(SO4)3+Ca(OH)2->Al(OH)3+CaSO4        1 3 2 3
+NH4NO3->N2+O2+H2O                       2 2 1 4
+CH3CH2CH2CH3+O2->CO2+H2O                2 13 8 10
+KMnO4+HCl->KCl+MnCl2+H2O+Cl2            2 16 2 2 8 5
+
+ahora soporta formulas semidesarrolladas 
 
 Gramática
 T = ELEM, NUM, (, ), *, END (atomico)
@@ -49,3 +56,4 @@ gg
 
 haciendo esto me he dado cuenta que definitvamente no me gusta la quimica
 o tal vez no me gusta programar
+ambos

@@ -56,10 +56,6 @@ void pre_process(Node *node, int mult, Node *most_eln, int *obj_charge, int *cou
     int cur_mult = mult * node->mult;
 
     if(node->type == N_ELEMENT) {
-        if(most_eln != NULL && node->data.elem == most_eln->data.elem && node->charge_done == 0) {
-            node->charge_done = 1;
-            node->charge = most_eln->charge;
-        }
         if(node->charge_done) {
             *obj_charge -= (node->charge * cur_mult);
         } else { //Unknown
@@ -100,6 +96,17 @@ char *get_symbol(Node *node) {
     return NULL;
 }
 
+ElementSymbol get_element_enum(Node *node) {
+    if(node == NULL) return UNKNOWN_ELEMENT;
+    if(node->type == N_ELEMENT) {
+        return node->data.elem->symbol;
+    }
+    if(node->child_count > 0) {
+        return get_element_enum(node->data.child[0]);
+    }
+    return UNKNOWN_ELEMENT;
+}
+
 int check_order(Node *node) {
     if(node == NULL || node->type == N_ELEMENT) return 1;
     for (int i = 0; i < node->child_count; i++) {
@@ -117,7 +124,20 @@ int check_order(Node *node) {
             int ch1 = get_charge_group(c1);
             int ch2 = get_charge_group(c2);
 
-            if (ch1 < ch2) return -1; 
+            if(ch1 < ch2) {
+                ElementSymbol s1 = get_element_enum(c1);
+                ElementSymbol s2 = get_element_enum(c2);
+                // esto es mierda porque la quimica es mierda no entiendo
+                int is_mierda = (s2 == H) && 
+                    (s1 == O || s1 == N || s1 == C || s1 == P || s1 == B || s1 == Si || s1 == As || s1 == Sb);
+                
+                int is_aun_mas_mierda = (ch1 > 0 && ch2 > 0) && 
+                    (get_electronegativity(c1) <= get_electronegativity(c2));
+
+                if (!is_mierda && !is_aun_mas_mierda) {
+                    return -1;
+                }
+            }
             if (ch1 == ch2) {
                 if(node->type == N_COMPOUND) {
                     char *sym1 = get_symbol(c1);
@@ -197,7 +217,30 @@ int calculate_charges(Node *node) { // Returns 0 if did nothing, 1 if done, -1 i
     // Fill most eln from each adduct
     Node *most_eln = NULL;
     Element *first_seen = NULL;
-    if(has_mult_elements(node, &first_seen) == 1) {
+    if(has_mult_elements(node, &first_seen) == 0) {
+        int obj_charge = node->charge;
+        int count_x = 0;
+        UnknownX *inc = (UnknownX *)malloc(sizeof(UnknownX)*64);
+        pre_process(node, 1, NULL, &obj_charge, &count_x, inc);
+        int total_atoms = 0;
+        for(int i = 0; i < count_x; i++) {
+            total_atoms += inc[i].total_mult;
+        }
+        int result = -1;
+        if(total_atoms > 0 && node->charge % total_atoms == 0) {
+            int expected_ox = node->charge / total_atoms;
+            for(int i = 0; i < count_x; i++) {
+                inc[i].node->charge = expected_ox;
+                inc[i].node->charge_done = 1;
+            }
+            if(check_order(node) != -1) {
+                resolve_nodes(node);
+                result = 1;
+            }
+        }
+        free(inc);
+        return result; // No bt
+    } else {
         most_eln = resolve_electronegativity(node);
     }
     
@@ -237,9 +280,12 @@ int check_correctness(Node *root) {
         Node *formula = root->data.child[i];
         for(int j = 0; j < formula->child_count; j++) {
             Node *expression = formula->data.child[j];
-            if(fix_charges(expression) == -1) {
-                fprintf(stderr, "Incorrect charge in formula\n");
-                return -1;
+            Element *first_seen = NULL;
+            if(!(has_mult_elements(expression, &first_seen) == 0)) {
+                if(fix_charges(expression) == -1) {
+                    fprintf(stderr, "Incorrect charge in formula\n");
+                    return -1;
+                }
             }
             // Then, calculate final charges
             if(calculate_charges(expression) == -1) {

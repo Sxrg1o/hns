@@ -5,6 +5,7 @@
 #include "table.h"
 #include "parse.h"
 #include "correctness.h"
+#include "balance.h"
 
 const Element elements[TOTAL_ELEMENTS] = {
     #define X(value, ox, count, elect, type) \
@@ -133,6 +134,7 @@ int main(void) {
             free_tree(root);
             return 1;
         }
+        balance_equation(root);
         print_tree(root, 0);
     } else {
         fprintf(stderr, "Error reading expression\n");
